@@ -1,1 +1,8 @@
 # cmd
+
+# test dependencies
+pytest
+pytest-cov
+
+# linting
+flake8
