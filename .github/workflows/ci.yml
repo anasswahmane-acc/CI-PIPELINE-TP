@@ -1,47 +1,58 @@
-
-name : CI-Pipeline-Worflow
+name: CI-Pipeline-Workflow
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
 jobs:
-  name: Lint 
-  runs-on: ubuntu-latest
-  steps:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.8'
+        python-version: "3.8"
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip 
+        python -m pip install --upgrade pip
         pip install -r tests/requirement.txt
-    - name: install flake8
-      run: |
-        pip install flake8
-    - name: Run Lint in app/ and tests/ directories
+    - name: Run lint in app/ and tests/
       run: |
         flake8 app/ tests/
-  name: Test
-  needs: Lint
-  runs-on: ubuntu-latest
-  steps:
-    - name: install dependencies
+
+  test:
+    name: Test
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.8"
+    - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip 
+        python -m pip install --upgrade pip
         pip install -r tests/requirement.txt
     - name: Run tests
       run: |
-        pytest tests/ -v --cov=src
-  name: Build
-  needs: Test
-  runs-on: ubuntu-latest
-  steps:
-    - name: Build the package
+        pytest tests/ -v --cov=app
+
+  build:
+    name: Build
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.8"
+    - name: Build check
       run: |
-        python -m Build
-    - name: Upload results
-      uses: actions/upload-artifact@v3
+        python -m compileall app tests
